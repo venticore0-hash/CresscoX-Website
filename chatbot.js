@@ -1,6 +1,6 @@
 (function () {
   const config = {
-    apiBaseUrl: 'https://cresscox-chatbot.onrender.com'
+    apiBaseUrl: 'https://cresscox-chatbot.onrender.com',
     assistantName: window.CX_CHATBOT_ASSISTANT_NAME || 'CresscoX Concierge',
     companyName: window.CX_CHATBOT_COMPANY_NAME || 'CresscoX',
     welcomeMessage:
