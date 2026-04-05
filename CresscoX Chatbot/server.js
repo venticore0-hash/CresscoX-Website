@@ -5,7 +5,6 @@ import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
-const cors = require('cors');
 const app = express();
 app.use(cors({
   origin: [
