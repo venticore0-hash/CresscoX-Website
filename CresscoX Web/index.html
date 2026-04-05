@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CresscoX | Business Development, Account Management, VA & CRM Systems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg-2:#0b1627;
+      --panel:rgba(12,22,38,.72);
+      --panel-2:rgba(20,31,53,.82);
+      --line:rgba(255,255,255,.09);
+      --text:#edf2f7;
+      --muted:#aab5c8;
+      --red:#ea234f;
+      --red-2:#ff5a7c;
+      --shadow:0 20px 55px rgba(0,0,0,.35);
+      --radius:26px;
+      --hero-building-image:url("D:/123.jpg");
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Inter',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(234,35,79,.10), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(73,110,255,.10), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #07111f 36%, #081423 100%);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:1;
+      background:
+        linear-gradient(180deg, rgba(5,10,18,.60) 0%, rgba(5,10,18,.60) 100%),
+        var(--hero-building-image) center/cover no-repeat;
+    }
+    a{text-decoration:none;color:inherit}
+    button,input,textarea,select{font:inherit}
+
+    .shell{max-width:1280px;margin:0 auto;padding:0 22px}
+    .glass{
+      background:linear-gradient(180deg, rgba(19,31,52,.78), rgba(9,17,31,.84));
+      border:1px solid var(--line);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:var(--shadow);
+    }
+
+    .topbar-wrap{position:relative;z-index:10;padding:8px 0 4px}
+    .topbar{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:14px;
+      align-items:center;
+    }
+    .topbar-logo-panel,
+    .topbar-nav-panel{
+      border-radius:24px;
+    }
+    .topbar-logo-panel{
+      padding:4px 6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:max-content;
+      background:transparent;
+      border:0;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .topbar-nav-panel{
+      min-height:74px;
+      padding:10px 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+      background:linear-gradient(90deg, rgba(9,18,34,.92), rgba(5,17,39,.90) 52%, rgba(12,25,49,.92));
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:0 14px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-logo{
+      width:128px;height:128px;border-radius:0;display:flex;align-items:center;justify-content:center;
+      background:transparent;
+      border:0; overflow:visible; flex:0 0 auto;
+      position:relative;padding:0;
+      box-shadow:none;
+    }
+    .brand-logo img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.24))}
+    .brand-logo-fallback{display:none;font-weight:900;font-size:19px;letter-spacing:-.04em}
+    .brand-logo-fallback .c{color:var(--red-2)}
+    .nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;flex:1}
+    .nav-btn{
+      border:0;background:transparent;color:#d3dbeb;padding:11px 14px;border-radius:14px;
+      text-transform:uppercase;font-weight:800;font-size:12px;letter-spacing:.10em;cursor:pointer;
+      transition:.25s ease;
+    }
+    .nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,.055);color:#fff}
+    .cta-btn{
+      border:1px solid rgba(255,255,255,.05);cursor:pointer;border-radius:16px;padding:12px 20px;font-weight:900;
+      text-transform:uppercase;letter-spacing:.08em;font-size:12px;
+      color:#fff;background:linear-gradient(135deg,var(--red),#ff466f);box-shadow:0 12px 28px rgba(234,35,79,.22);
+    }
+
+    .page{display:none;padding-bottom:40px}
+    .page.active{display:block;animation:fade .35s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* HOME */
+    .home-page-stack{display:grid;gap:22px}
+    .home-hero{
+      position:relative;min-height:calc(100vh - 130px);overflow:hidden;border-radius:32px;padding:42px 34px 38px;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      isolation:isolate;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:none;
+    }
+    .home-hero::before{
+      content:"";position:absolute;inset:0;z-index:-4;
+      background:transparent;
+    }
+    .home-hero::after{
+      content:"";position:absolute;inset:0;z-index:-3;
+      background:
+        linear-gradient(180deg, rgba(7,14,25,.18) 0%, rgba(7,14,25,.28) 50%, rgba(5,10,18,.42) 100%);
+      border-radius:inherit;
+    }
+    .gridlines{
+      position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.06;
+      background:
+        linear-gradient(rgba(53,78,117,.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(53,78,117,.16) 1px, transparent 1px);
+      background-size:88px 88px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.48), rgba(0,0,0,.82));
+    }
+    .hero-left{max-width:720px;padding:4px 4px 8px 2px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;margin-bottom:18px;width:max-content;
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#d7dfef;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    }
+    .eyebrow .dot{width:9px;height:9px;border-radius:50%;background:#ff5a7c;box-shadow:0 0 0 0 rgba(255,90,124,.5);animation:pulse 2s infinite}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,90,124,.45)}70%{box-shadow:0 0 0 10px rgba(255,90,124,0)}100%{box-shadow:0 0 0 0 rgba(255,90,124,0)}}
+    .home-title{font-size:clamp(54px,8vw,98px);line-height:.92;letter-spacing:-.07em;font-weight:900;margin:0 0 16px}
+    .home-title .accent{color:#f49aad}
+    .home-copy{max-width:620px;font-size:18px;line-height:1.8;color:#d7dfec;margin:0 0 28px}
+    .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+    .btn-primary,.btn-secondary{
+      display:inline-flex;align-items:center;gap:10px;padding:16px 22px;border-radius:18px;font-weight:800;cursor:pointer;border:1px solid transparent;
+      transition:.25s ease;
+    }
+    .btn-primary{background:linear-gradient(135deg,var(--red),#ff486f);color:#fff;box-shadow:0 14px 34px rgba(234,35,79,.24)}
+    .btn-primary:hover{transform:translateY(-2px)}
+    .btn-secondary{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#fff}
+    .btn-secondary:hover{background:rgba(255,255,255,.1)}
+
+    .home-section{padding:2px 0}
+    .section-shell{padding:30px;border-radius:30px}
+    .section-kicker{display:inline-block;color:#ff98ae;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+    .section-heading{margin-bottom:22px}
+    .section-heading h2{margin:0 0 8px;font-size:clamp(28px,4vw,40px);letter-spacing:-.05em}
+    .section-heading p{margin:0;max-width:640px;color:var(--muted);line-height:1.8}
+
+    .tool-grid,.client-grid,.review-grid,.about-grid,.founders-grid-home,.footer-grid{display:grid;gap:16px}
+    .tool-grid{grid-template-columns:repeat(5,1fr)}
+    .client-grid{grid-template-columns:repeat(5,1fr)}
+    .review-grid{grid-template-columns:repeat(3,1fr)}
+    .about-grid{grid-template-columns:1.1fr .9fr}
+    .founders-grid-home{grid-template-columns:repeat(2,1fr)}
+    .footer-grid{grid-template-columns:1.1fr .9fr;align-items:start}
+
+    .tool-card,.client-card-home,.review-card,.about-card,.founder-card-home,.footer-card{
+      border-radius:26px;padding:24px;background:linear-gradient(180deg, rgba(18,29,49,.8), rgba(10,18,31,.9));border:1px solid rgba(255,255,255,.08)
+    }
+    .tool-card,.client-card-home{text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px}
+    .tool-icon,.client-logo{
+      width:62px;height:62px;border-radius:20px;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:26px;color:#f0f4fb;
+    }
+    .tool-card strong,.client-card-home strong{font-size:16px;letter-spacing:-.02em}
+    .tool-card span,.client-card-home span{color:#9facbf;font-size:13px;line-height:1.6}
+
+    .review-card blockquote{margin:0 0 16px;font-size:18px;line-height:1.75;color:#eef2fa}
+    .review-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#a5b1c3;font-size:14px}
+    .stars{color:#ff8faa;letter-spacing:.12em}
+
+    .about-card h3,.founder-card-home h3,.footer-card h3{margin:0 0 12px;font-size:24px;letter-spacing:-.03em}
+    .about-card p,.founder-card-home p,.footer-card p{margin:0;color:#b6c1d3;line-height:1.85}
+    .mini-points{display:grid;gap:12px}
+    .mini-point{padding:15px 16px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+    .mini-point strong{display:block;margin-bottom:4px;color:#fff}
+    .mini-point span{color:#aab7cb;line-height:1.7;font-size:15px}
+    .founder-role{color:#ff9cb0;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
+    .footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px}
+    .footer-links a{color:#d9e1ee;font-weight:700;padding:8px 0}
+    .footer-bottom{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);color:#8f9bb0;font-size:14px}
+
+    /* Shared pages */
+    .page-grid{display:grid;grid-template-columns:1fr;gap:22px}
+    .page::before{
+      content:"";display:block;height:0;
+    }
+    .page-hero,.section-card,.card{border-radius:28px}
+    .page-hero{position:relative;overflow:hidden}
+    .page-hero::before{
+      content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+      background:
+        linear-gradient(180deg, rgba(5,10,18,.60) 0%, rgba(5,10,18,.60) 100%),
+        var(--hero-building-image) center/cover no-repeat;
+      opacity:.9;
+    }
+    .page-hero,.section-card,.card{padding:28px}
+    .page-hero h2{margin:0 0 8px;font-size:clamp(32px,4vw,46px);letter-spacing:-.04em}
+    .page-hero p,.section-card p,.card p{color:var(--muted);line-height:1.8}
+    .subgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+    .cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .cards-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .icon-badge{width:50px;height:50px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(234,35,79,.13);color:#ff6d8a;font-size:20px;margin-bottom:16px}
+    .card h3,.section-card h3{margin:0 0 10px;font-size:22px}
+    .muted{color:var(--muted)}
+
+    .service-button{
+      width:100%;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(19,31,52,.78), rgba(9,17,31,.84));color:#fff;
+      border-radius:24px;padding:24px;box-shadow:var(--shadow);transition:.25s ease;
+    }
+    .service-button:hover,.service-button[aria-expanded='true']{border-color:rgba(255,90,124,.4);transform:translateY(-2px)}
+    .service-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .service-summary{color:var(--muted);line-height:1.75;margin:0}
+    .service-arrow{font-size:18px;color:#ff8faa;transition:transform .25s ease;margin-top:8px}
+    .service-button[aria-expanded='true'] .service-arrow{transform:rotate(180deg)}
+    .service-detail{display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+    .service-button[aria-expanded='true'] .service-detail{display:block}
+    .service-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;padding:0;margin:0;list-style:none}
+    .service-list li{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);color:#dbe4f1;font-size:14px}
+
+    .case-chip-row,.filter-row{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{
+      padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#d5deee;font-weight:700;font-size:13px
+    }
+    .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .step{padding:22px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    .step .num{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--red),#ff597c);display:flex;align-items:center;justify-content:center;font-weight:900;margin-bottom:14px}
+
+    form{display:grid;gap:16px}
+    .field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .field{display:grid;gap:8px}
+    label{font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#dbe2ef}
+    input,textarea,select{
+      width:100%;padding:15px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#fff;outline:none;
+    }
+    textarea{min-height:130px;resize:vertical}
+    input::placeholder,textarea::placeholder{color:#8f9ab0}
+    input:focus,textarea:focus,select:focus{border-color:rgba(255,106,136,.75);box-shadow:0 0 0 4px rgba(234,35,79,.12)}
+    .form-note{font-size:13px;color:#96a3bb;line-height:1.7}
+
+    .footer{padding:20px 0 48px;color:#93a0b8;text-align:center;font-size:14px}
+
+    @media (max-width: 1080px){
+      .home-hero{
+      position:relative;min-height:calc(100vh - 130px);overflow:hidden;border-radius:32px;padding:42px 34px 38px;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      isolation:isolate;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:none;
+    }
+    @media (max-width: 760px){
+      .topbar{grid-template-columns:1fr}
+      .topbar-logo-panel{width:100%;justify-content:flex-start;padding:0 4px}
+      .topbar-nav-panel{flex-wrap:wrap;justify-content:center;min-height:auto;padding:14px}
+      .nav{width:100%;justify-content:center}
+      .cta-btn{width:100%}
+      .home-hero{
+      position:relative;min-height:calc(100vh - 130px);overflow:hidden;border-radius:32px;padding:42px 34px 38px;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      isolation:isolate;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:none;
+    }
+  </style>
+
+  <link rel="stylesheet" href="chatbot.css">
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar-wrap">
+      <header class="topbar">
+        <div class="topbar-logo-panel glass">
+          <div class="brand">
+            <div class="brand-logo" aria-hidden="true"><img id="brandLogo" src="D:/CRESSCO.png" alt="CresscoX logo" onerror="tryLogoFallback(this)"><span class="brand-logo-fallback"><span class="c">C</span>X</span></div>
+          </div>
+        </div>
+
+        <div class="topbar-nav-panel glass">
+          <nav class="nav" aria-label="Main navigation">
+            <button class="nav-btn active" data-target="home">Home</button>
+            <button class="nav-btn" data-target="services">Services</button>
+            <button class="nav-btn" data-target="case-studies">Case Studies</button>
+            <button class="nav-btn" data-target="careers">Careers</button>
+            <button class="nav-btn" data-target="contact">Contact</button>
+            <button class="nav-btn" data-target="portal">Portal</button>
+          </nav>
+
+          <button class="cta-btn" data-target="appointment">Appointment</button>
+        </div>
+      </header>
+    </div>
+
+    <main>
+      <section class="page active" id="page-home">
+        <div class="home-page-stack">
+          <div class="home-hero glass">
+            <div class="gridlines"></div>
+            <div class="hero-left">
+<h1 class="home-title">Build a sharper<br><span class="accent">client experience.</span></h1>
+              <p class="home-copy">A modern operations partner for businesses that want cleaner systems, stronger coordination, and a more polished digital presence.</p>
+              <div class="hero-actions">
+                <button class="btn-primary" data-target="appointment"><i class="fa-regular fa-calendar-check"></i> Book Appointment</button>
+                <button class="btn-secondary" data-target="contact"><i class="fa-regular fa-envelope"></i> Contact Us</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="section-heading">
+                <h2>Tools and softwares</h2>
+                <p>Platforms we work with regularly.</p>
+              </div>
+              <div class="tool-grid">
+                <div class="tool-card"><div class="tool-icon"><i class="fa-brands fa-salesforce"></i></div><strong>Salesforce</strong><span>CRM platform</span></div>
+                <div class="tool-card"><div class="tool-icon"><i class="fa-brands fa-hubspot"></i></div><strong>HubSpot</strong><span>Sales & marketing</span></div>
+                <div class="tool-card"><div class="tool-icon"><i class="fa-solid fa-k"></i></div><strong>Kajabi</strong><span>Digital business</span></div>
+                <div class="tool-card"><div class="tool-icon"><i class="fa-solid fa-layer-group"></i></div><strong>GoHighLevel</strong><span>Automation stack</span></div>
+                <div class="tool-card"><div class="tool-icon"><i class="fa-solid fa-rocket"></i></div><strong>Apollo.io</strong><span>Prospecting</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="section-heading">
+                <h2>Our Clients</h2>
+                <p>Examples of the type of brands this style is inspired by.</p>
+              </div>
+              <div class="client-grid">
+                <div class="client-card-home"><div class="client-logo">BMW</div><strong>BMW</strong><span>Automotive</span></div>
+                <div class="client-card-home"><div class="client-logo">AUDI</div><strong>Audi</strong><span>Automotive</span></div>
+                <div class="client-card-home"><div class="client-logo">P</div><strong>Pepsi</strong><span>Consumer brand</span></div>
+                <div class="client-card-home"><div class="client-logo">CC</div><strong>Coca‑Cola</strong><span>Consumer brand</span></div>
+                <div class="client-card-home"><div class="client-logo">N</div><strong>Nike</strong><span>Global retail</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="section-heading">
+                <h2>Client reviews</h2>
+                <p>Short words from clients.</p>
+              </div>
+              <div class="review-grid">
+                <div class="review-card">
+                  <blockquote>“Clean, responsive, and much more professional than what we had before.”</blockquote>
+                  <div class="review-meta"><span>Client Review</span><span class="stars">★★★★★</span></div>
+                </div>
+                <div class="review-card">
+                  <blockquote>“CresscoX helped make our workflow feel simpler without losing quality.”</blockquote>
+                  <div class="review-meta"><span>Client Review</span><span class="stars">★★★★★</span></div>
+                </div>
+                <div class="review-card">
+                  <blockquote>“The overall setup felt organized, clear, and easy for our team to use.”</blockquote>
+                  <div class="review-meta"><span>Client Review</span><span class="stars">★★★★★</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="section-heading">
+                <h2>CresscoX</h2>
+                <p>A short look at the company.</p>
+              </div>
+              <div class="about-grid">
+                <div class="about-card">
+                  <h3>Built for smoother operations</h3>
+                  <p>CresscoX helps businesses build a cleaner, more organized way of working. The focus is on professional systems, better coordination, and a stronger experience for clients.</p>
+                </div>
+                <div class="mini-points">
+                  <div class="mini-point"><strong>Mission</strong><span>To make business operations feel clear, polished, and dependable.</span></div>
+                  <div class="mini-point"><strong>Value</strong><span>Clarity, professionalism, and structure in every client-facing touchpoint.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="section-heading">
+                <h2>Founders</h2>
+                <p>The people behind CresscoX.</p>
+              </div>
+              <div class="founders-grid-home">
+                <div class="founder-card-home">
+                  <h3>Talha Jaleel</h3>
+                  <div class="founder-role">Co-Founder</div>
+                  <p>Focused on building clean digital systems, better workflow structure, and a stronger client-facing experience.</p>
+                </div>
+                <div class="founder-card-home">
+                  <h3>Fahad Jalil</h3>
+                  <div class="founder-role">Co-Founder</div>
+                  <p>Focused on direction, coordination, and shaping how CresscoX works with clarity and consistency.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-section">
+            <div class="section-shell glass">
+              <div class="footer-grid">
+                <div class="footer-card">
+                  <h3>CresscoX</h3>
+                  <p>Sharper systems. Better coordination. A cleaner client experience.</p>
+                  <div class="footer-bottom">© 2026 CresscoX. All rights reserved. — CresscoX</div>
+                </div>
+                <div class="footer-card">
+                  <h3>Quicklinks</h3>
+                  <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#services">Services</a>
+                    <a href="#case-studies">Case Studies</a>
+                    <a href="#careers">Careers</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#portal">Portal</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-services">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Services</h2>
+            <p>Select a service to view its overall scope and key areas of support.</p>
+          </div>
+          <div class="cards-4">
+            <button class="service-button" type="button" aria-expanded="false">
+              <div class="service-head">
+                <div>
+                  <div class="icon-badge"><i class="fa-solid fa-chart-line"></i></div>
+                  <h3>Business Development</h3>
+                  <p class="service-summary">Growth support focused on outreach, relationship building, and stronger pipeline movement.</p>
+                </div>
+                <i class="fa-solid fa-chevron-down service-arrow"></i>
+              </div>
+              <div class="service-detail">
+                <ul class="service-list">
+                  <li>Lead Generation</li>
+                  <li>Email Management</li>
+                  <li>Cold Outreach</li>
+                  <li>Business Strategy Building</li>
+                  <li>Appointment Setting</li>
+                  <li>Advising</li>
+                </ul>
+              </div>
+            </button>
+            <button class="service-button" type="button" aria-expanded="false">
+              <div class="service-head">
+                <div>
+                  <div class="icon-badge"><i class="fa-solid fa-user-group"></i></div>
+                  <h3>Account Management</h3>
+                  <p class="service-summary">Ongoing client-side coordination to keep communication, follow-up, and reporting organized.</p>
+                </div>
+                <i class="fa-solid fa-chevron-down service-arrow"></i>
+              </div>
+              <div class="service-detail">
+                <ul class="service-list">
+                  <li>Client Communication</li>
+                  <li>Follow-Up Coordination</li>
+                  <li>Relationship Handling</li>
+                  <li>Account Support</li>
+                  <li>Status Updates</li>
+                  <li>Retention Support</li>
+                </ul>
+              </div>
+            </button>
+            <button class="service-button" type="button" aria-expanded="false">
+              <div class="service-head">
+                <div>
+                  <div class="icon-badge"><i class="fa-solid fa-headset"></i></div>
+                  <h3>Virtual Assistance</h3>
+                  <p class="service-summary">Daily operational help for admin-heavy tasks that need consistency and clean execution.</p>
+                </div>
+                <i class="fa-solid fa-chevron-down service-arrow"></i>
+              </div>
+              <div class="service-detail">
+                <ul class="service-list">
+                  <li>Inbox Management</li>
+                  <li>Calendar Scheduling</li>
+                  <li>Research Support</li>
+                  <li>Document Handling</li>
+                  <li>Task Coordination</li>
+                  <li>Administrative Support</li>
+                </ul>
+              </div>
+            </button>
+            <button class="service-button" type="button" aria-expanded="false">
+              <div class="service-head">
+                <div>
+                  <div class="icon-badge"><i class="fa-solid fa-database"></i></div>
+                  <h3>CRM Systems</h3>
+                  <p class="service-summary">Structured CRM work that keeps records, workflows, and reporting cleaner and easier to manage.</p>
+                </div>
+                <i class="fa-solid fa-chevron-down service-arrow"></i>
+              </div>
+              <div class="service-detail">
+                <ul class="service-list">
+                  <li>CRM Setup</li>
+                  <li>Pipeline Structuring</li>
+                  <li>Data Cleanup</li>
+                  <li>Workflow Organization</li>
+                  <li>Reporting Support</li>
+                  <li>System Maintenance</li>
+                </ul>
+              </div>
+            </button>
+          </div>
+          <div class="section-card glass">
+            <h3>How CresscoX works</h3>
+            <div class="timeline">
+              <div class="step"><div class="num">1</div><strong>Discovery</strong><p>We understand the workflow, gaps, and priorities first.</p></div>
+              <div class="step"><div class="num">2</div><strong>Structure</strong><p>We shape a cleaner process and define how the support should work.</p></div>
+              <div class="step"><div class="num">3</div><strong>Execution</strong><p>We handle the setup, support, and coordination needed for delivery.</p></div>
+              <div class="step"><div class="num">4</div><strong>Refinement</strong><p>We improve the system so it stays smoother and more consistent over time.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-case-studies">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Case Studies</h2>
+            <p>Showcase how CresscoX improves workflows, client handling, support systems, and business operations across different needs.</p>
+          </div>
+          <div class="filter-row">
+            <span class="chip">Business Operations</span><span class="chip">CRM Workflows</span><span class="chip">Client Handling</span><span class="chip">Admin Support</span>
+          </div>
+          <div class="cards-3">
+            <div class="card glass"><h3>CRM Cleanup & Structure</h3><p>Organized a cluttered CRM environment, clarified records, and improved workflow consistency for daily use.</p></div>
+            <div class="card glass"><h3>Client Process Support</h3><p>Improved account handling flow with clearer communication points and better operational follow-through.</p></div>
+            <div class="card glass"><h3>Virtual Operations Assistance</h3><p>Reduced admin pressure by supporting scheduling, follow-ups, and process coordination.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-careers">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Careers</h2>
+            <p>CresscoX is interested in people who value professionalism, organization, communication, and clean execution.</p>
+          </div>
+          <div class="subgrid">
+            <div class="section-card glass"><h3>Who fits well here</h3><p>People who work clearly, communicate well, learn fast, and care about quality support and client experience.</p></div>
+            <div class="section-card glass"><h3>Areas of interest</h3><p>Business support, account handling, research, operations, admin support, CRM assistance, and coordination work.</p></div>
+          </div>
+          <div class="section-card glass">
+            <h3>Send your interest</h3>
+            <form>
+              <div class="field-grid">
+                <div class="field"><label>Full Name</label><input placeholder="Your full name"></div>
+                <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+              </div>
+              <div class="field-grid">
+                <div class="field"><label>Role Interest</label><select><option>Select role</option><option>Business Development</option><option>Account Management</option><option>Virtual Assistance</option><option>CRM Support</option></select></div>
+                <div class="field"><label>Experience Level</label><select><option>Select level</option><option>Entry</option><option>Intermediate</option><option>Experienced</option></select></div>
+              </div>
+              <div class="field"><label>Why do you want to join?</label><textarea placeholder="Tell us a little about your background and interest."></textarea></div>
+              <button type="button" class="btn-primary">Submit Interest</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-contact">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Contact</h2>
+            <p>Use the contact form for general inquiries, collaboration discussions, support questions, or service-related communication.</p>
+          </div>
+          <div class="section-card glass">
+            <form>
+              <div class="field-grid">
+                <div class="field"><label>Full Name</label><input placeholder="Your full name"></div>
+                <div class="field"><label>Email Address</label><input type="email" placeholder="you@example.com"></div>
+              </div>
+              <div class="field-grid">
+                <div class="field"><label>Company</label><input placeholder="Your company or brand"></div>
+                <div class="field"><label>Inquiry Type</label><select><option>General Inquiry</option><option>Service Inquiry</option><option>Partnership</option><option>Support</option></select></div>
+              </div>
+              <div class="field"><label>Message</label><textarea placeholder="Tell us what you need and how CresscoX can help."></textarea></div>
+              <div class="form-note">A professional contact form improves trust and makes it easier to sort different kinds of inquiries quickly.</div>
+              <button type="button" class="btn-primary">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-portal">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Client Portal</h2>
+            <p>A cleaner, more secure portal entry creates stronger trust and gives clients a more professional experience.</p>
+          </div>
+          <div class="subgrid">
+            <div class="section-card glass">
+              <h3>Portal Access</h3>
+              <form>
+                <div class="field"><label>Email Address</label><input type="email" placeholder="client@example.com"></div>
+                <div class="field"><label>Password</label><input type="password" placeholder="Enter password"></div>
+                <div class="field-grid">
+                  <div class="field"><label>Workspace</label><select><option>Main Client Workspace</option><option>Operations Workspace</option><option>Support Workspace</option></select></div>
+                  <div class="field"><label>Access Type</label><select><option>Client</option><option>Team Member</option><option>Admin</option></select></div>
+                </div>
+                <button type="button" class="btn-primary">Access Portal</button>
+              </form>
+            </div>
+            <div class="section-card glass">
+              <h3>Why this feels better</h3>
+              <p>Portal access should feel secure, polished, and intentional. Better labels, spacing, and form design make the experience more reliable for users.</p>
+              <div class="check-list">
+                <div class="check"><i class="fa-solid fa-check"></i><span>Cleaner login flow</span></div>
+                <div class="check"><i class="fa-solid fa-check"></i><span>More professional user trust</span></div>
+                <div class="check"><i class="fa-solid fa-check"></i><span>Better client-facing presentation</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-appointment">
+        <div class="page-grid">
+          <div class="page-hero glass">
+            <h2>Book Appointment</h2>
+            <p>The appointment flow should feel serious, simple, and professional. This form is designed to qualify leads without making the process heavy.</p>
+          </div>
+          <div class="section-card glass">
+            <form>
+              <div class="field-grid">
+                <div class="field"><label>Full Name</label><input placeholder="Your full name"></div>
+                <div class="field"><label>Email Address</label><input type="email" placeholder="you@example.com"></div>
+              </div>
+              <div class="field-grid">
+                <div class="field"><label>Company / Brand</label><input placeholder="Company name"></div>
+                <div class="field"><label>Service Needed</label><select><option>Business Development</option><option>Account Management</option><option>Virtual Assistance</option><option>CRM Systems</option></select></div>
+              </div>
+              <div class="field-grid">
+                <div class="field"><label>Preferred Date</label><input type="date"></div>
+                <div class="field"><label>Preferred Time</label><input type="time"></div>
+              </div>
+              <div class="field"><label>Project Details</label><textarea placeholder="Briefly explain what you need, your current setup, and your main goal."></textarea></div>
+              <div class="form-note">A stronger appointment form helps CresscoX collect better lead information before the call.</div>
+              <button type="button" class="btn-primary">Request Appointment</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script>
+    const pages = document.querySelectorAll('.page');
+    const navBtns = document.querySelectorAll('[data-target]');
+    function openPage(name){
+      pages.forEach(p=>p.classList.toggle('active', p.id === 'page-' + name));
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.target === name));
+      location.hash = name;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    navBtns.forEach(btn=>btn.addEventListener('click',()=>openPage(btn.dataset.target)));
+    const initial = (location.hash || '#home').replace('#','');
+    openPage(document.getElementById('page-' + initial) ? initial : 'home');
+
+    document.querySelectorAll('.service-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const isOpen = button.getAttribute('aria-expanded') === 'true';
+        document.querySelectorAll('.service-button').forEach(item => item.setAttribute('aria-expanded', 'false'));
+        button.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+  </script>
+
+  <script>
+    window.CX_CHATBOT_API_BASE_URL = "http://localhost:3000";
+    window.CX_CHATBOT_ASSISTANT_NAME = "CresscoX Concierge";
+    window.CX_CHATBOT_COMPANY_NAME = "CresscoX";
+  </script>
+  <script src="chatbot.js"></script>
+</body>
+</html>
