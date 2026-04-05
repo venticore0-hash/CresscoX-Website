@@ -23,6 +23,14 @@ if (!process.env.GEMINI_API_KEY) {
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('Chatbot backend is running');
+});
+
+app.get('/health', (req, res) => {
+  res.json({ ok: true });
+});
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const sessions = new Map();
 const MAX_HISTORY_MESSAGES = 24;
