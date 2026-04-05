@@ -5,12 +5,24 @@ import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
+const cors = require('cors');
 const app = express();
+app.use(cors({
+  origin: [
+    'https://cresscox-website.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:4000'
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
 const port = process.env.PORT || 3000;
 
 if (!process.env.GEMINI_API_KEY) {
   console.warn('Missing GEMINI_API_KEY. Add it to your .env file before using the chatbot.');
 }
+
+app.use(express.json());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const sessions = new Map();
