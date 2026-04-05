@@ -21,7 +21,7 @@
       --red-2:#ff5a7c;
       --shadow:0 20px 55px rgba(0,0,0,.35);
       --radius:26px;
-      --hero-building-image:url("./123.jpg");
+      --hero-building-image:url("./assets/123.jpg");
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -265,31 +265,392 @@
     .footer{padding:20px 0 48px;color:#93a0b8;text-align:center;font-size:14px}
 
     @media (max-width: 1080px){
-      .home-hero{
-      position:relative;min-height:calc(100vh - 130px);overflow:hidden;border-radius:32px;padding:42px 34px 38px;
-      display:flex;align-items:center;justify-content:center;text-align:center;
-      isolation:isolate;
-      background:transparent;
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:none;
+      .tool-grid,.client-grid{grid-template-columns:repeat(3,1fr)}
+      .review-grid,.cards-3,.cards-4,.timeline{grid-template-columns:repeat(2,1fr)}
+      .about-grid,.footer-grid,.subgrid{grid-template-columns:1fr}
+      .home-hero{min-height:auto;padding:56px 28px}
     }
+
     @media (max-width: 760px){
       .topbar{grid-template-columns:1fr}
       .topbar-logo-panel{width:100%;justify-content:flex-start;padding:0 4px}
       .topbar-nav-panel{flex-wrap:wrap;justify-content:center;min-height:auto;padding:14px}
       .nav{width:100%;justify-content:center}
       .cta-btn{width:100%}
-      .home-hero{
-      position:relative;min-height:calc(100vh - 130px);overflow:hidden;border-radius:32px;padding:42px 34px 38px;
-      display:flex;align-items:center;justify-content:center;text-align:center;
-      isolation:isolate;
-      background:transparent;
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:none;
+      .tool-grid,.client-grid,.review-grid,.cards-3,.cards-4,.timeline,.founders-grid-home,.field-grid{grid-template-columns:1fr}
+      .home-hero{min-height:auto;padding:42px 20px 34px;border-radius:24px}
+      .section-shell,.page-hero,.section-card,.card{padding:22px}
+      .home-title{font-size:clamp(40px,12vw,64px)}
     }
   </style>
 
-  <link rel="stylesheet" href="chatbot.css">
+
+  <style>
+:root {
+  --cx-chat-primary: #ea234f;
+  --cx-chat-primary-2: #ff5a7c;
+  --cx-chat-panel: rgba(9, 16, 28, 0.96);
+  --cx-chat-panel-2: rgba(16, 26, 44, 0.98);
+  --cx-chat-border: rgba(255, 255, 255, 0.1);
+  --cx-chat-text: #eef3fb;
+  --cx-chat-muted: #a8b4c8;
+  --cx-chat-user: linear-gradient(135deg, #ea234f, #ff5a7c);
+  --cx-chat-assistant: rgba(255, 255, 255, 0.08);
+  --cx-chat-shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
+}
+
+.cx-chatbot-root {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  font-family: 'Inter', sans-serif;
+}
+
+.cx-chatbot-toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.cx-chatbot-bubble {
+  max-width: 260px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  color: var(--cx-chat-text);
+  background: rgba(7, 13, 24, 0.92);
+  border: 1px solid var(--cx-chat-border);
+  box-shadow: var(--cx-chat-shadow);
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: 0.25s ease;
+}
+
+.cx-chatbot-root.ready .cx-chatbot-bubble {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cx-chatbot-toggle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 30%, #ff6f90 0%, var(--cx-chat-primary) 42%, #a00529 100%);
+  box-shadow: 0 18px 40px rgba(234, 35, 79, 0.35);
+  position: relative;
+}
+
+.cx-chatbot-toggle i {
+  font-size: 28px;
+}
+
+.cx-chatbot-ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  animation: cxChatPing 2.2s infinite;
+}
+
+@keyframes cxChatPing {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(1.22); opacity: 0; }
+  100% { transform: scale(1.22); opacity: 0; }
+}
+
+.cx-chatbot-window {
+  width: min(430px, calc(100vw - 24px));
+  height: min(760px, calc(100vh - 110px));
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--cx-chat-panel-2), var(--cx-chat-panel));
+  border: 1px solid rgba(255, 90, 124, 0.5);
+  box-shadow: var(--cx-chat-shadow);
+  display: none;
+  flex-direction: column;
+}
+
+.cx-chatbot-root.open .cx-chatbot-window {
+  display: flex;
+  animation: cxChatUp 0.28s ease;
+}
+
+.cx-chatbot-root.open .cx-chatbot-toggle-wrap {
+  display: none;
+}
+
+@keyframes cxChatUp {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cx-chatbot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #050a15, #0a1221 70%, #101d35);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.cx-chatbot-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cx-chatbot-title {
+  margin: 0;
+  color: white;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+}
+
+.cx-chatbot-subtitle {
+  color: var(--cx-chat-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.cx-chatbot-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cx-chatbot-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: white;
+  cursor: pointer;
+}
+
+.cx-chatbot-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px 20px;
+  background:
+    radial-gradient(circle at top right, rgba(234,35,79,0.08), transparent 18%),
+    linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+}
+
+.cx-chatbot-intro {
+  padding: 14px 14px 0;
+}
+
+.cx-chatbot-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cx-chatbot-badge {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #dce6f5;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.cx-chat-msg-row {
+  display: flex;
+  margin: 12px 0;
+}
+
+.cx-chat-msg-row.user {
+  justify-content: flex-end;
+}
+
+.cx-chat-msg-row.assistant {
+  justify-content: flex-start;
+}
+
+.cx-chat-msg {
+  max-width: 88%;
+  border-radius: 20px;
+  padding: 14px 15px;
+  color: var(--cx-chat-text);
+  line-height: 1.65;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid transparent;
+}
+
+.cx-chat-msg.assistant {
+  background: var(--cx-chat-assistant);
+  border-color: rgba(255,255,255,0.06);
+  border-top-left-radius: 8px;
+}
+
+.cx-chat-msg.user {
+  background: var(--cx-chat-user);
+  color: white;
+  border-top-right-radius: 8px;
+}
+
+.cx-chat-msg strong,
+.cx-chat-msg b {
+  color: white;
+}
+
+.cx-chatbot-footer {
+  padding: 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(5, 10, 18, 0.78);
+}
+
+.cx-chatbot-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.cx-chatbot-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cx-chatbot-textarea {
+  width: 100%;
+  min-height: 62px;
+  max-height: 140px;
+  resize: none;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  padding: 16px;
+  color: white;
+  outline: none;
+}
+
+.cx-chatbot-textarea::placeholder {
+  color: #91a0b7;
+}
+
+.cx-chatbot-textarea:focus {
+  border-color: rgba(255,90,124,0.75);
+  box-shadow: 0 0 0 4px rgba(234,35,79,0.12);
+}
+
+.cx-chatbot-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--cx-chat-muted);
+  font-size: 11px;
+}
+
+.cx-chatbot-send {
+  min-width: 62px;
+  height: 62px;
+  align-self: end;
+  border: 0;
+  border-radius: 18px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--cx-chat-primary), var(--cx-chat-primary-2));
+  box-shadow: 0 14px 30px rgba(234,35,79,0.28);
+}
+
+.cx-chatbot-send[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cx-chatbot-send i {
+  font-size: 20px;
+}
+
+.cx-chat-typing {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cx-chat-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.72);
+  display: inline-block;
+  animation: cxTyping 1.2s infinite ease-in-out;
+}
+
+.cx-chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.cx-chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes cxTyping {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+
+.cx-chatbot-starters {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cx-chatbot-starter {
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #eaf1fa;
+  padding: 12px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.cx-chatbot-note {
+  color: #8e9bb0;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .cx-chatbot-root {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .cx-chatbot-window {
+    width: calc(100vw - 24px);
+    height: min(85vh, 720px);
+    border-radius: 22px;
+  }
+
+  .cx-chatbot-title {
+    font-size: 18px;
+  }
+
+  .cx-chat-msg {
+    max-width: 94%;
+  }
+}
+
+  </style>
 </head>
 <body>
   <div class="shell">
@@ -297,7 +658,9 @@
       <header class="topbar">
         <div class="topbar-logo-panel glass">
           <div class="brand">
-            <div class="brand-logo" aria-hidden="true"><img id="brandLogo" src="./CRESSCO.png" alt="CresscoX logo" onerror="tryLogoFallback(this)"><span class="brand-logo-fallback"><span class="c">C</span>X</span></div>
+            <div class="brand-logo" aria-hidden="true">
+              <img id="brandLogo" src="./assets/CRESSCO.png" alt="CresscoX logo">
+              <span class="brand-logo-fallback"><span class="c">C</span>X</span></div>
           </div>
         </div>
 
@@ -705,11 +1068,473 @@
     });
   </script>
 
+
   <script>
-    window.CX_CHATBOT_API_BASE_URL = "http://localhost:3000";
-    window.CX_CHATBOT_ASSISTANT_NAME = "CresscoX Concierge";
-    window.CX_CHATBOT_COMPANY_NAME = "CresscoX";
+
+(function () {
+  const config = {
+    assistantName: 'CresscoX Concierge',
+    companyName: 'CresscoX',
+    welcomeMessage:
+      'Welcome to CresscoX. Tell me what is slowing your business down right now—lead generation, CRM setup, follow-up, operations, client handling, admin overload, or something else. I’ll respond like a real consultant and ask focused follow-up questions when needed.',
+  };
+
+  const storageKey = 'cx_chatbot_session_id';
+  const memoryKey = 'cx_chatbot_memory';
+  const sessionId = getOrCreateSessionId();
+  let isOpen = false;
+  let isSending = false;
+  let memory = loadMemory();
+
+  const root = document.createElement('div');
+  root.className = 'cx-chatbot-root';
+  root.innerHTML = `
+    <div class="cx-chatbot-toggle-wrap">
+      <div class="cx-chatbot-bubble">Ask about business growth, CRM, operations, client handling, outreach, or workflow bottlenecks.</div>
+      <button class="cx-chatbot-toggle" type="button" aria-label="Open chatbot">
+        <span class="cx-chatbot-ping"></span>
+        <i class="fa-solid fa-robot"></i>
+      </button>
+    </div>
+
+    <section class="cx-chatbot-window" aria-label="${escapeHtml(config.assistantName)}">
+      <header class="cx-chatbot-header">
+        <div class="cx-chatbot-brand">
+          <h3 class="cx-chatbot-title">${escapeHtml(config.assistantName)}</h3>
+          <div class="cx-chatbot-subtitle">Business-focused website chatbot with self-coded logic</div>
+        </div>
+        <div class="cx-chatbot-header-actions">
+          <button class="cx-chatbot-icon-btn" type="button" data-action="reset" title="Start new chat">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button class="cx-chatbot-icon-btn" type="button" data-action="close" title="Close chat">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="cx-chatbot-intro">
+        <div class="cx-chatbot-badges">
+          <span class="cx-chatbot-badge">Floating chatbot UI</span>
+          <span class="cx-chatbot-badge">Custom logic</span>
+          <span class="cx-chatbot-badge">Local memory</span>
+          <span class="cx-chatbot-badge">Business assistant</span>
+        </div>
+      </div>
+
+      <div class="cx-chatbot-body" id="cxChatBody"></div>
+
+      <footer class="cx-chatbot-footer">
+        <form class="cx-chatbot-form" id="cxChatForm">
+          <div class="cx-chatbot-input-wrap">
+            <textarea class="cx-chatbot-textarea" id="cxChatInput" placeholder="Describe your problem in your own words..." rows="1"></textarea>
+            <div class="cx-chatbot-meta">
+              <span>Self-coded conversation flow • no external AI</span>
+              <span id="cxChatCounter">0 / 3000</span>
+            </div>
+          </div>
+          <button class="cx-chatbot-send" id="cxChatSend" type="submit" aria-label="Send message">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+        <div class="cx-chatbot-note">This version uses your own coded response logic inside the page. No OpenAI, Gemini, or external model is required.</div>
+      </footer>
+    </section>
+  `;
+
+  document.body.appendChild(root);
+
+  const toggleBtn = root.querySelector('.cx-chatbot-toggle');
+  const closeBtn = root.querySelector('[data-action="close"]');
+  const resetBtn = root.querySelector('[data-action="reset"]');
+  const bodyEl = root.querySelector('#cxChatBody');
+  const formEl = root.querySelector('#cxChatForm');
+  const inputEl = root.querySelector('#cxChatInput');
+  const sendBtn = root.querySelector('#cxChatSend');
+  const counterEl = root.querySelector('#cxChatCounter');
+
+  requestAnimationFrame(() => root.classList.add('ready'));
+  renderAssistantMessage(config.welcomeMessage, true);
+  renderStarters();
+
+  toggleBtn.addEventListener('click', () => {
+    isOpen = true;
+    root.classList.add('open');
+    inputEl.focus();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    isOpen = false;
+    root.classList.remove('open');
+  });
+
+  resetBtn.addEventListener('click', () => {
+    memory = createEmptyMemory();
+    persistMemory();
+    bodyEl.innerHTML = '';
+    renderAssistantMessage(config.welcomeMessage, true);
+    renderStarters();
+    inputEl.focus();
+  });
+
+  inputEl.addEventListener('input', () => {
+    autoResize(inputEl);
+    counterEl.textContent = `${inputEl.value.length} / 3000`;
+  });
+
+  inputEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      formEl.requestSubmit();
+    }
+  });
+
+  formEl.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const message = inputEl.value.trim();
+    if (!message || isSending) return;
+
+    removeStarters();
+    renderUserMessage(message);
+    inputEl.value = '';
+    autoResize(inputEl);
+    counterEl.textContent = '0 / 3000';
+
+    const typingId = renderTyping();
+    setSendingState(true);
+
+    try {
+      await wait(350);
+      const reply = generateReply(message);
+      removeTyping(typingId);
+      renderAssistantMessage(reply);
+    } catch (error) {
+      removeTyping(typingId);
+      renderAssistantMessage(`I’m having trouble processing that message right now. Please try again.\n\nTechnical note: ${error.message}`);
+    } finally {
+      setSendingState(false);
+    }
+  });
+
+  function createEmptyMemory() {
+    return {
+      sessionId,
+      history: [],
+      lead: {
+        name: '',
+        email: '',
+        company: '',
+        service: '',
+        painPoints: [],
+      },
+      lastIntent: 'general',
+    };
+  }
+
+  function loadMemory() {
+    try {
+      const raw = localStorage.getItem(memoryKey);
+      if (!raw) return createEmptyMemory();
+      const parsed = JSON.parse(raw);
+      return {
+        ...createEmptyMemory(),
+        ...parsed,
+        lead: {
+          ...createEmptyMemory().lead,
+          ...(parsed.lead || {}),
+          painPoints: Array.isArray(parsed?.lead?.painPoints) ? parsed.lead.painPoints : [],
+        },
+        history: Array.isArray(parsed.history) ? parsed.history.slice(-12) : [],
+      };
+    } catch {
+      return createEmptyMemory();
+    }
+  }
+
+  function persistMemory() {
+    localStorage.setItem(memoryKey, JSON.stringify(memory));
+  }
+
+  function renderStarters() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'cx-chatbot-starters';
+    wrapper.id = 'cxChatStarters';
+
+    const starters = [
+      'We are getting leads, but not enough of them become booked calls.',
+      'Our CRM is messy and the team is not updating it properly.',
+      'Client follow-up is inconsistent and deals are slipping.',
+      'I need help structuring outreach, operations, and reporting.',
+    ];
+
+    starters.forEach((text) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cx-chatbot-starter';
+      btn.textContent = text;
+      btn.addEventListener('click', () => {
+        inputEl.value = text;
+        autoResize(inputEl);
+        counterEl.textContent = `${text.length} / 3000`;
+        formEl.requestSubmit();
+      });
+      wrapper.appendChild(btn);
+    });
+
+    bodyEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function removeStarters() {
+    const starters = document.getElementById('cxChatStarters');
+    if (starters) starters.remove();
+  }
+
+  function renderUserMessage(text) {
+    renderMessage('user', text);
+  }
+
+  function renderAssistantMessage(text, isFirst = false) {
+    renderMessage('assistant', text);
+    if (isFirst) scrollToBottom();
+  }
+
+  function renderMessage(role, text) {
+    const row = document.createElement('div');
+    row.className = `cx-chat-msg-row ${role}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = `cx-chat-msg ${role}`;
+    bubble.innerHTML = formatMessage(text);
+
+    row.appendChild(bubble);
+    bodyEl.appendChild(row);
+    scrollToBottom();
+  }
+
+  function renderTyping() {
+    const id = `typing-${Date.now()}`;
+    const row = document.createElement('div');
+    row.className = 'cx-chat-msg-row assistant';
+    row.id = id;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'cx-chat-msg assistant';
+    bubble.innerHTML = '<div class="cx-chat-typing"><span></span><span></span><span></span></div>';
+
+    row.appendChild(bubble);
+    bodyEl.appendChild(row);
+    scrollToBottom();
+    return id;
+  }
+
+  function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  function setSendingState(value) {
+    isSending = value;
+    sendBtn.disabled = value;
+    inputEl.disabled = value;
+  }
+
+  function scrollToBottom() {
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+  }
+
+  function getOrCreateSessionId() {
+    const existing = localStorage.getItem(storageKey);
+    if (existing) return existing;
+    const id = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `cx-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(storageKey, id);
+    return id;
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function generateReply(message) {
+    const normalized = normalize(message);
+    updateLeadMemory(message, normalized);
+    const intent = detectIntent(normalized);
+    memory.lastIntent = intent;
+    memory.history.push({ role: 'user', text: message, intent });
+    memory.history = memory.history.slice(-12);
+
+    const reply = buildReply(intent, message, normalized);
+    memory.history.push({ role: 'assistant', text: reply, intent });
+    memory.history = memory.history.slice(-12);
+    persistMemory();
+    return reply;
+  }
+
+  function normalize(text) {
+    return String(text).toLowerCase().replace(/[^a-z0-9@.\s&+-]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function detectIntent(text) {
+    if (/(hello|hi|hey|good morning|good afternoon)\b/.test(text)) return 'greeting';
+    if (/(price|pricing|cost|budget|fee|fees|package|packages)\b/.test(text)) return 'pricing';
+    if (/(book|appointment|schedule|call|meeting|consultation)\b/.test(text)) return 'appointment';
+    if (/(crm|pipeline|hubspot|zoho|salesforce|data cleanup|workflow|automation)\b/.test(text)) return 'crm';
+    if (/(lead|leads|outreach|prospect|prospecting|cold email|cold calling|booked calls|appointments booked)\b/.test(text)) return 'lead_generation';
+    if (/(follow up|follow-up|client handling|retention|account management|accounts|customer success)\b/.test(text)) return 'account_management';
+    if (/(virtual assistant|va |admin|administrative|calendar|inbox|research support|scheduling)\b/.test(text)) return 'virtual_assistance';
+    if (/(operations|workflow|process|reporting|coordination|systems)\b/.test(text)) return 'operations';
+    if (/(contact|email|whatsapp|phone|reach you)\b/.test(text)) return 'contact';
+    if (/(name is|i am |i'm |email is|my email|company is|we are )\b/.test(text)) return 'lead_capture';
+    return 'general';
+  }
+
+  function buildReply(intent, originalMessage, normalized) {
+    const lead = memory.lead;
+    const nameLine = lead.name ? `Thanks, ${lead.name}. ` : '';
+
+    const replies = {
+      greeting: `${nameLine}Welcome. I can help visitors understand CresscoX services and guide them toward the right next step. Tell me whether you need help with **lead generation**, **CRM systems**, **account management**, **virtual assistance**, or **operations**.`,
+
+      pricing: `${nameLine}Pricing depends on the scope, workload, and support level needed. The fastest way to get a serious estimate is to share **your service need**, **current problem**, and **team size or workload**. If you want, tell me those 3 things now and I’ll help structure the request before booking an appointment.`,
+
+      appointment: `${nameLine}You can use the **Appointment** page on this website to request a call. Before booking, it helps to prepare 3 things:\n\n**1.** Your main bottleneck\n**2.** The service you need\n**3.** The result you want in the next 30 to 90 days\n\nRight now, based on your message, I’d categorize this under **${humanizeIntent(memory.lastIntent === 'appointment' ? inferServiceFromPainPoints() : memory.lastIntent)}**.`,
+
+      crm: `${nameLine}It sounds like you need help with **CRM Systems**. CresscoX can support with:\n\n- CRM setup\n- pipeline structuring\n- data cleanup\n- workflow organization\n- reporting support\n- system maintenance\n\nA useful next step is to tell me: **Which CRM are you using now, and what is the biggest issue—messy data, poor follow-up, or no clear process?**`,
+
+      lead_generation: `${nameLine}It sounds like a **lead generation / outreach** issue. CresscoX can help by improving:\n\n- lead targeting\n- outreach structure\n- message consistency\n- follow-up flow\n- booked-call conversion\n\nTell me this next: **Are you struggling more with finding leads, getting replies, or converting replies into calls?**`,
+
+      account_management: `${nameLine}This looks like an **account management / client handling** problem. CresscoX can help improve:\n\n- follow-up consistency\n- client communication flow\n- retention support\n- account coordination\n- relationship management processes\n\nTell me whether the bigger issue is **late follow-up**, **poor communication**, or **client retention**.`,
+
+      virtual_assistance: `${nameLine}This sounds like a **virtual assistance / admin support** need. CresscoX can help with:\n\n- inbox management\n- calendar scheduling\n- research support\n- document handling\n- task coordination\n- administrative support\n\nTell me which tasks are taking the most time each week, and I’ll help narrow the scope.`,
+
+      operations: `${nameLine}This sounds like an **operations / workflow** issue. The main goal here is usually to reduce confusion, improve accountability, and make work easier to track.\n\nA good next step is to tell me:\n- what feels messy now\n- who is involved\n- where delays usually happen`,
+
+      contact: `${nameLine}The best path is through the **Contact** page or the **Appointment** page on this site. If you want, send me your **name**, **email**, **company**, and the **service you need**, and I’ll help you organize the inquiry before you submit it.`,
+
+      lead_capture: buildLeadCaptureReply(),
+
+      general: `${nameLine}I understand the message. Based on what you wrote, the most relevant areas may be **${suggestTopics(normalized)}**. Tell me which one fits best, and I’ll guide you step by step.`
+    };
+
+    if (/(thank you|thanks)\b/.test(normalized)) {
+      return `${nameLine}You’re welcome. If you want to continue, tell me your **main business bottleneck** and I’ll point you to the right service.`;
+    }
+
+    if (/(human|person|real person)\b/.test(normalized)) {
+      return `${nameLine}For direct human follow-up, please use the **Contact** or **Appointment** page. Before that, I can help summarize your need into a clean message so your inquiry is more useful.`;
+    }
+
+    return replies[intent] || replies.general;
+  }
+
+  function updateLeadMemory(originalMessage, normalized) {
+    const emailMatch = originalMessage.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+    if (emailMatch) memory.lead.email = emailMatch[0];
+
+    const nameMatch = originalMessage.match(/(?:my name is|i am|i'm)\s+([A-Za-z][A-Za-z\s'-]{1,40})/i);
+    if (nameMatch) memory.lead.name = cleanCapturedValue(nameMatch[1]);
+
+    const companyMatch = originalMessage.match(/(?:company is|we are|our company is)\s+([A-Za-z0-9][A-Za-z0-9\s&.,'-]{1,60})/i);
+    if (companyMatch) memory.lead.company = cleanCapturedValue(companyMatch[1]);
+
+    const service = inferServiceFromText(normalized);
+    if (service) memory.lead.service = service;
+
+    const painMap = [
+      ['low lead conversion', /(not enough.*booked calls|low conversion|poor conversion|few booked calls)/],
+      ['messy crm', /(messy crm|dirty data|crm is messy|bad crm|poor crm)/],
+      ['weak follow-up', /(follow up is inconsistent|bad follow up|late follow up|poor follow up)/],
+      ['operations overload', /(operations|admin overload|too many tasks|workflow is messy)/],
+    ];
+
+    painMap.forEach(([label, pattern]) => {
+      if (pattern.test(normalized) && !memory.lead.painPoints.includes(label)) {
+        memory.lead.painPoints.push(label);
+      }
+    });
+  }
+
+  function inferServiceFromText(text) {
+    if (/(crm|pipeline|hubspot|zoho|salesforce)/.test(text)) return 'CRM Systems';
+    if (/(lead|outreach|prospect|booked calls)/.test(text)) return 'Business Development';
+    if (/(client handling|account management|retention|follow up)/.test(text)) return 'Account Management';
+    if (/(virtual assistant|admin|calendar|inbox|scheduling)/.test(text)) return 'Virtual Assistance';
+    if (/(operations|workflow|process|reporting)/.test(text)) return 'Operations Support';
+    return '';
+  }
+
+  function inferServiceFromPainPoints() {
+    return memory.lead.service || 'general support';
+  }
+
+  function buildLeadCaptureReply() {
+    const parts = [];
+    if (memory.lead.name) parts.push(`**Name:** ${memory.lead.name}`);
+    if (memory.lead.email) parts.push(`**Email:** ${memory.lead.email}`);
+    if (memory.lead.company) parts.push(`**Company:** ${memory.lead.company}`);
+    if (memory.lead.service) parts.push(`**Likely service:** ${memory.lead.service}`);
+
+    if (parts.length) {
+      return `I’ve picked up these details from your message:\n\n${parts.join('\n')}\n\nYou can now use the **Appointment** or **Contact** page and submit these details with your business need.`;
+    }
+
+    return `You can send me your **name**, **email**, **company**, and **service needed**, and I’ll organize them into a cleaner inquiry summary.`;
+  }
+
+  function suggestTopics(text) {
+    const suggestions = [];
+    if (/(lead|outreach|prospect)/.test(text)) suggestions.push('lead generation');
+    if (/(crm|pipeline|workflow)/.test(text)) suggestions.push('CRM systems');
+    if (/(client|follow up|retention)/.test(text)) suggestions.push('account management');
+    if (/(admin|calendar|inbox|va)/.test(text)) suggestions.push('virtual assistance');
+    if (/(operations|process|reporting)/.test(text)) suggestions.push('operations');
+    if (!suggestions.length) suggestions.push('lead generation, CRM systems, account management, or operations');
+    return suggestions.join(', ');
+  }
+
+  function humanizeIntent(intent) {
+    const map = {
+      crm: 'CRM Systems',
+      lead_generation: 'Business Development',
+      account_management: 'Account Management',
+      virtual_assistance: 'Virtual Assistance',
+      operations: 'Operations Support',
+      pricing: 'Pricing / Scope Review',
+      general: 'General Business Support',
+      'general support': 'General Support',
+    };
+    return map[intent] || intent || 'General Support';
+  }
+
+  function cleanCapturedValue(value) {
+    return String(value).replace(/\s+/g, ' ').trim().replace(/[.,]+$/, '');
+  }
+
+  function formatMessage(text) {
+    const escaped = escapeHtml(text);
+    return escaped
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^- (.*)$/gm, '• $1')
+      .replace(/\n/g, '<br>');
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+})();
+
   </script>
-  <script src="chatbot.js"></script>
 </body>
 </html>
