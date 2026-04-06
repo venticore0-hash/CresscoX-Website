@@ -21,7 +21,7 @@
       --red-2:#ff5a7c;
       --shadow:0 20px 55px rgba(0,0,0,.35);
       --radius:26px;
-      --hero-building-image: url("/123.jpg");
+      --hero-building-image:url("./assets/123.jpg");
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -659,7 +659,7 @@
         <div class="topbar-logo-panel glass">
           <div class="brand">
             <div class="brand-logo" aria-hidden="true">
-              <img id="brandLogo" src="/CRESSCO.png" alt="CresscoX logo">
+              <img id="brandLogo" src="./assets/CRESSCO.png" alt="CresscoX logo">
               <span class="brand-logo-fallback"><span class="c">C</span>X</span></div>
           </div>
         </div>
@@ -1069,28 +1069,144 @@
   </script>
 
 
-  <script>
 
+  <script>
 (function () {
   const config = {
     assistantName: 'CresscoX Concierge',
     companyName: 'CresscoX',
-    welcomeMessage:
-      'Welcome to CresscoX. Tell me what is slowing your business down right now—lead generation, CRM setup, follow-up, operations, client handling, admin overload, or something else. I’ll respond like a real consultant and ask focused follow-up questions when needed.',
+    welcomeMessage: 'How can CresscoX help?'
   };
 
   const storageKey = 'cx_chatbot_session_id';
   const memoryKey = 'cx_chatbot_memory';
   const sessionId = getOrCreateSessionId();
-  let isOpen = false;
   let isSending = false;
   let memory = loadMemory();
+
+  const CRM_NAMES = {
+    hubspot: 'HubSpot',
+    salesforce: 'Salesforce',
+    zoho: 'Zoho',
+    pipedrive: 'Pipedrive',
+    freshsales: 'Freshsales',
+    highlevel: 'HighLevel',
+    gohighlevel: 'HighLevel',
+    close: 'Close',
+    monday: 'Monday CRM',
+    excel: 'Excel / Spreadsheet'
+  };
+
+  const FAQ_LIBRARY = [
+    {
+      key: 'migration_excel_to_crm',
+      tests: [/migrate.*excel/i, /excel.*crm/i, /spreadsheet.*crm/i, /move.*excel.*crm/i],
+      answer: 'Yes — CresscoX can help move data from Excel or spreadsheets into a proper CRM. That usually includes cleanup, field mapping, deduplication, pipeline setup, and workflow structure. Tell me which CRM you want to move into and roughly how many records are involved.'
+    },
+    {
+      key: 'reply_rate',
+      tests: [/reply rate/i, /typical reply/i, /outbound.*reply/i],
+      answer: 'Reply rates vary by niche, list quality, offer, and messaging. The better KPI is qualified replies and booked meetings. If you share your market and channel, I can frame a more realistic benchmark.'
+    },
+    {
+      key: 'handover_sales_to_am',
+      tests: [/handover.*sales.*account/i, /sales team.*account managers/i, /between the sales team and the account managers/i],
+      answer: 'A strong handover should include required CRM fields, deal notes, next-step ownership, scope summary, and a clear internal checkpoint so context is not lost.'
+    },
+    {
+      key: 'sops',
+      tests: [/\bsop\b/i, /\bstandard operating procedures\b/i],
+      answer: 'Yes — SOP support fits naturally inside operations work. That can include documenting workflows, owners, approval steps, handovers, and tracking points.'
+    },
+    {
+      key: 'va_timezone',
+      tests: [/virtual assistant.*time zone/i, /va.*time zone/i, /work in my time zone/i],
+      answer: 'Yes, that can be scoped. If the role is client-facing or calendar-heavy, timezone overlap matters more. For back-office support, partial overlap can still work very well.'
+    }
+  ];
+
+  const INTENT_MODELS = {
+    greeting: {
+      examples: ['hello', 'hi there', 'hey', 'good morning'],
+      patterns: ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'salam', 'assalam']
+    },
+    smalltalk: {
+      examples: ['how are you', 'how are you doing', 'how is it going'],
+      patterns: ['how are you', 'how are you doing', 'how is it going', 'how are things']
+    },
+    thanks: {
+      examples: ['thanks', 'thank you', 'perfect'],
+      patterns: ['thanks', 'thank you', 'jazakallah', 'perfect', 'great']
+    },
+    demo_request: {
+      examples: ['i want a demo', 'show me a demo of hubspot setup', 'can i see how your lead generation workflow works'],
+      patterns: ['demo', 'show me', 'walk me through', 'see how it works']
+    },
+    audit_request: {
+      examples: ['audit my current setup', 'review my crm', 'audit my outbound process'],
+      patterns: ['audit my current setup', 'audit my crm', 'review my setup', 'review my crm', 'audit']
+    },
+    pricing_request: {
+      examples: ['pricing for a custom project', 'how much would a custom setup cost', 'custom quote'],
+      patterns: ['pricing', 'price', 'quote', 'quotation', 'budget', 'cost', 'custom project']
+    },
+    emergency_request: {
+      examples: ['emergency help system down', 'our hubspot automation is broken', 'we are locked out of salesforce'],
+      patterns: ['emergency', 'urgent', 'system down', 'broken right now', 'locked out', 'not working', 'asap']
+    },
+    hire_va_request: {
+      examples: ['hire a va', 'need a virtual assistant', 'looking for admin support'],
+      patterns: ['hire a va', 'virtual assistant', 'need an assistant', 'admin support']
+    },
+    booking_request: {
+      examples: ['book a call', 'schedule a meeting', 'i want a consultation'],
+      patterns: ['book a call', 'schedule a call', 'book appointment', 'schedule meeting', 'consultation', 'strategy call']
+    },
+    crm_help: {
+      examples: ['i need help with hubspot', 'crm is messy', 'salesforce automation is broken', 'need crm setup'],
+      patterns: ['crm', 'hubspot', 'salesforce', 'zoho', 'pipedrive', 'pipeline', 'automation', 'data cleanup', 'crm setup', 'crm migration']
+    },
+    lead_generation: {
+      examples: ['need more leads', 'our cold email is not getting replies', 'lead generation help'],
+      patterns: ['lead generation', 'need more leads', 'cold email', 'outreach', 'prospecting', 'reply rate', 'booked calls']
+    },
+    account_management: {
+      examples: ['client handover is messy', 'account management support', 'clients are dropping'],
+      patterns: ['account management', 'client handover', 'retention', 'customer success', 'client communication', 'renewal']
+    },
+    operations: {
+      examples: ['we need sops', 'operations are messy', 'workflow is broken', 'need better reporting'],
+      patterns: ['operations', 'workflow', 'process', 'sop', 'reporting', 'handover', 'coordination', 'approvals']
+    },
+    contact: {
+      examples: ['how can i contact you', 'whatsapp number', 'email your team'],
+      patterns: ['contact', 'reach you', 'whatsapp', 'email you', 'phone number', 'get in touch']
+    },
+    general: {
+      examples: ['need business support', 'can you help my company', 'need help'],
+      patterns: []
+    }
+  };
+
+  const SYNONYM_GROUPS = [
+    ['crm', 'pipeline', 'deal stages', 'deal stage', 'records', 'contacts', 'companies'],
+    ['lead generation', 'lead gen', 'prospecting', 'outreach', 'cold email', 'cold calling', 'appointment setting'],
+    ['virtual assistant', 'va', 'admin support', 'assistant', 'calendar', 'inbox'],
+    ['operations', 'workflow', 'process', 'sop', 'handover', 'coordination', 'reporting'],
+    ['audit', 'review', 'assess', 'diagnose'],
+    ['demo', 'show', 'walkthrough', 'walk through'],
+    ['book', 'schedule', 'arrange', 'meeting', 'call', 'consultation'],
+    ['urgent', 'emergency', 'asap', 'critical'],
+    ['pricing', 'price', 'cost', 'quote', 'budget'],
+    ['messy', 'broken', 'chaotic', 'disorganized', 'unclear'],
+    ['migrate', 'migration', 'move', 'transfer', 'import']
+  ];
 
   const root = document.createElement('div');
   root.className = 'cx-chatbot-root';
   root.innerHTML = `
     <div class="cx-chatbot-toggle-wrap">
-      <div class="cx-chatbot-bubble">Ask about business growth, CRM, operations, client handling, outreach, or workflow bottlenecks.</div>
+      <div class="cx-chatbot-bubble">Chat</div>
       <button class="cx-chatbot-toggle" type="button" aria-label="Open chatbot">
         <span class="cx-chatbot-ping"></span>
         <i class="fa-solid fa-robot"></i>
@@ -1101,7 +1217,7 @@
       <header class="cx-chatbot-header">
         <div class="cx-chatbot-brand">
           <h3 class="cx-chatbot-title">${escapeHtml(config.assistantName)}</h3>
-          <div class="cx-chatbot-subtitle">Business-focused website chatbot with self-coded logic</div>
+          <div class="cx-chatbot-subtitle">CRM, lead gen, ops</div>
         </div>
         <div class="cx-chatbot-header-actions">
           <button class="cx-chatbot-icon-btn" type="button" data-action="reset" title="Start new chat">
@@ -1113,23 +1229,14 @@
         </div>
       </header>
 
-      <div class="cx-chatbot-intro">
-        <div class="cx-chatbot-badges">
-          <span class="cx-chatbot-badge">Floating chatbot UI</span>
-          <span class="cx-chatbot-badge">Custom logic</span>
-          <span class="cx-chatbot-badge">Local memory</span>
-          <span class="cx-chatbot-badge">Business assistant</span>
-        </div>
-      </div>
-
       <div class="cx-chatbot-body" id="cxChatBody"></div>
 
       <footer class="cx-chatbot-footer">
         <form class="cx-chatbot-form" id="cxChatForm">
           <div class="cx-chatbot-input-wrap">
-            <textarea class="cx-chatbot-textarea" id="cxChatInput" placeholder="Describe your problem in your own words..." rows="1"></textarea>
+            <textarea class="cx-chatbot-textarea" id="cxChatInput" placeholder="Type your message..." rows="1"></textarea>
             <div class="cx-chatbot-meta">
-              <span>Self-coded conversation flow • no external AI</span>
+              <span></span>
               <span id="cxChatCounter">0 / 3000</span>
             </div>
           </div>
@@ -1137,7 +1244,6 @@
             <i class="fa-solid fa-paper-plane"></i>
           </button>
         </form>
-        <div class="cx-chatbot-note">This version uses your own coded response logic inside the page. No OpenAI, Gemini, or external model is required.</div>
       </footer>
     </section>
   `;
@@ -1158,17 +1264,22 @@
   renderStarters();
 
   toggleBtn.addEventListener('click', () => {
-    isOpen = true;
     root.classList.add('open');
     inputEl.focus();
   });
 
   closeBtn.addEventListener('click', () => {
-    isOpen = false;
     root.classList.remove('open');
   });
 
-  resetBtn.addEventListener('click', () => {
+  resetBtn.addEventListener('click', async () => {
+    try {
+      await fetch('/api/chat/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      });
+    } catch (_error) {}
     memory = createEmptyMemory();
     persistMemory();
     bodyEl.innerHTML = '';
@@ -1191,83 +1302,43 @@
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (isSending) return;
+
     const message = inputEl.value.trim();
-    if (!message || isSending) return;
+    if (!message) return;
+    if (message.length > 3000) {
+      renderAssistantMessage('Please keep your message under 3000 characters.');
+      return;
+    }
 
     removeStarters();
-    renderUserMessage(message);
+    renderMessage('user', message);
     inputEl.value = '';
-    autoResize(inputEl);
     counterEl.textContent = '0 / 3000';
-
-    const typingId = renderTyping();
+    autoResize(inputEl);
     setSendingState(true);
 
+    const typingId = renderTyping();
     try {
-      await wait(350);
-      const reply = generateReply(message);
+      const reply = await sendMessageToServer(message);
+      await wait(120);
       removeTyping(typingId);
       renderAssistantMessage(reply);
-    } catch (error) {
+    } catch (_error) {
       removeTyping(typingId);
-      renderAssistantMessage(`I’m having trouble processing that message right now. Please try again.\n\nTechnical note: ${error.message}`);
+      renderAssistantMessage(generateReply(message));
     } finally {
       setSendingState(false);
+      inputEl.focus();
     }
   });
-
-  function createEmptyMemory() {
-    return {
-      sessionId,
-      history: [],
-      lead: {
-        name: '',
-        email: '',
-        company: '',
-        service: '',
-        painPoints: [],
-      },
-      lastIntent: 'general',
-    };
-  }
-
-  function loadMemory() {
-    try {
-      const raw = localStorage.getItem(memoryKey);
-      if (!raw) return createEmptyMemory();
-      const parsed = JSON.parse(raw);
-      return {
-        ...createEmptyMemory(),
-        ...parsed,
-        lead: {
-          ...createEmptyMemory().lead,
-          ...(parsed.lead || {}),
-          painPoints: Array.isArray(parsed?.lead?.painPoints) ? parsed.lead.painPoints : [],
-        },
-        history: Array.isArray(parsed.history) ? parsed.history.slice(-12) : [],
-      };
-    } catch {
-      return createEmptyMemory();
-    }
-  }
-
-  function persistMemory() {
-    localStorage.setItem(memoryKey, JSON.stringify(memory));
-  }
 
   function renderStarters() {
     const wrapper = document.createElement('div');
     wrapper.className = 'cx-chatbot-starters';
     wrapper.id = 'cxChatStarters';
 
-    const starters = [
-      'We are getting leads, but not enough of them become booked calls.',
-      'Our CRM is messy and the team is not updating it properly.',
-      'Client follow-up is inconsistent and deals are slipping.',
-      'I need help structuring outreach, operations, and reporting.',
-    ];
-
-    starters.forEach((text) => {
+    ['HubSpot help', 'Demo', 'Audit', 'Book a call'].forEach((text) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'cx-chatbot-starter';
@@ -1288,10 +1359,6 @@
   function removeStarters() {
     const starters = document.getElementById('cxChatStarters');
     if (starters) starters.remove();
-  }
-
-  function renderUserMessage(text) {
-    renderMessage('user', text);
   }
 
   function renderAssistantMessage(text, isFirst = false) {
@@ -1358,120 +1425,373 @@
     return id;
   }
 
+  function createEmptyMemory() {
+    return {
+      history: [],
+      lead: {
+        name: '',
+        email: '',
+        company: '',
+        service: '',
+        crmName: '',
+        issueType: '',
+        urgency: '',
+        volume: '',
+        faqTopic: ''
+      }
+    };
+  }
+
+  function loadMemory() {
+    try {
+      const raw = localStorage.getItem(memoryKey);
+      if (!raw) return createEmptyMemory();
+      return { ...createEmptyMemory(), ...JSON.parse(raw) };
+    } catch (_error) {
+      return createEmptyMemory();
+    }
+  }
+
+  function persistMemory() {
+    localStorage.setItem(memoryKey, JSON.stringify(memory));
+  }
+
   function wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  async function sendMessageToServer(message) {
+    let response;
+    try {
+      response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, message })
+      });
+    } catch (_error) {
+      return generateReply(message);
+    }
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || 'Request failed.');
+    }
+
+    if (data.sessionLead) {
+      memory.lead = { ...memory.lead, ...data.sessionLead };
+    }
+
+    memory.history.push({ role: 'user', text: message });
+    memory.history.push({ role: 'assistant', text: data.reply || '' });
+    memory.history = memory.history.slice(-12);
+    persistMemory();
+
+    return data.reply || 'I could not generate a reply.';
+  }
+
+  function normalize(text) {
+    return String(text || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9@.\s&+\-/]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function stemToken(token) {
+    return token.replace(/(ing|ers|er|ed|ly|ment|tion|s)$/i, '').trim();
+  }
+
+  function tokenize(text) {
+    return normalize(text).split(' ').filter(Boolean).map(stemToken);
+  }
+
+  function makeNGrams(value, size = 3) {
+    const text = ` ${normalize(value)} `;
+    const grams = new Set();
+    for (let i = 0; i < text.length - size + 1; i += 1) {
+      grams.add(text.slice(i, i + size));
+    }
+    return grams;
+  }
+
+  function diceCoefficient(a, b) {
+    const ag = makeNGrams(a);
+    const bg = makeNGrams(b);
+    if (!ag.size || !bg.size) return 0;
+    let overlap = 0;
+    ag.forEach((gram) => { if (bg.has(gram)) overlap += 1; });
+    return (2 * overlap) / (ag.size + bg.size);
+  }
+
+  function overlapScore(aTokens, bTokens) {
+    const a = new Set(aTokens);
+    const b = new Set(bTokens);
+    if (!a.size || !b.size) return 0;
+    let overlap = 0;
+    a.forEach((token) => { if (b.has(token)) overlap += 1; });
+    return overlap / Math.max(a.size, b.size);
+  }
+
+  function expandText(text) {
+    let expanded = ` ${normalize(text)} `;
+    SYNONYM_GROUPS.forEach((group) => {
+      const hit = group.some((item) => expanded.includes(` ${normalize(item)} `));
+      if (hit) expanded += ` ${group.map(normalize).join(' ')} `;
+    });
+    return expanded.trim();
+  }
+
+  function hasAny(text, list) {
+    const normalized = normalize(text);
+    return list.some((item) => normalized.includes(normalize(item)));
+  }
+
+  function matchPatterns(text, patterns) {
+    const normalized = normalize(text);
+    let score = 0;
+    patterns.forEach((pattern) => {
+      const p = normalize(pattern);
+      if (!p) return;
+      if (normalized.includes(p)) score = Math.max(score, 1);
+      score = Math.max(score, diceCoefficient(normalized, p) * 0.85);
+    });
+    return score;
+  }
+
+  function detectDirectIntent(text) {
+    const normalized = normalize(text);
+    const directChecks = [
+      ['smalltalk', ['how are you', 'how are you doing', 'how is it going', 'how are things']],
+      ['greeting', ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'salam', 'assalam']],
+      ['demo_request', ['demo request', 'i want a demo', 'need a demo', 'show me a demo', 'can i see a demo', 'book a demo', 'demo']],
+      ['audit_request', ['audit my current setup', 'audit my crm', 'review my crm', 'review my setup', 'audit request', 'audit']],
+      ['pricing_request', ['pricing for a custom project', 'custom pricing', 'custom quote', 'quote', 'pricing', 'price']],
+      ['emergency_request', ['emergency help', 'system down', 'urgent help', 'locked out', 'asap', 'critical issue']],
+      ['hire_va_request', ['hire a va', 'need a va', 'need a virtual assistant', 'virtual assistant', 'admin support']],
+      ['booking_request', ['book a call', 'book a meeting', 'schedule a call', 'schedule a meeting', 'strategy call', 'consultation']],
+      ['contact', ['how can i contact you', 'contact you', 'get in touch', 'whatsapp', 'phone number']]
+    ];
+
+    for (const [intent, patterns] of directChecks) {
+      for (const phrase of patterns) {
+        const p = normalize(phrase);
+        if (normalized === p || normalized.startsWith(`${p} `) || normalized.includes(` ${p} `) || normalized.endsWith(` ${p}`)) {
+          return { intent, confidence: 0.98 };
+        }
+      }
+    }
+
+    if (normalized.length <= 12 && ['hi', 'hey', 'hello'].includes(normalized)) {
+      return { intent: 'greeting', confidence: 0.99 };
+    }
+
+    return null;
+  }
+
+  function classifyIntent(text) {
+    const directIntent = detectDirectIntent(text);
+    if (directIntent) return directIntent;
+
+    const expanded = expandText(text);
+    const expandedTokens = tokenize(expanded);
+
+    let bestIntent = 'general';
+    let bestScore = 0;
+
+    Object.entries(INTENT_MODELS).forEach(([intent, model]) => {
+      let score = 0;
+      (model.examples || []).forEach((example) => {
+        const exExpanded = expandText(example);
+        const exampleScore =
+          overlapScore(expandedTokens, tokenize(exExpanded)) * 0.55 +
+          diceCoefficient(expanded, exExpanded) * 0.45;
+        score = Math.max(score, exampleScore);
+      });
+
+      score = Math.max(score, matchPatterns(expanded, model.patterns || []));
+      if (score > bestScore) {
+        bestIntent = intent;
+        bestScore = score;
+      }
+    });
+
+    if (bestScore < 0.22) {
+      if (hasAny(expanded, ['hubspot', 'salesforce', 'zoho', 'pipedrive', 'highlevel', 'crm'])) return { intent: 'crm_help', confidence: 0.42 };
+      if (hasAny(expanded, ['lead', 'outreach', 'cold email', 'reply', 'meeting', 'prospecting'])) return { intent: 'lead_generation', confidence: 0.4 };
+      if (hasAny(expanded, ['virtual assistant', 'admin support', 'calendar', 'inbox'])) return { intent: 'hire_va_request', confidence: 0.4 };
+      if (hasAny(expanded, ['operations', 'workflow', 'sop', 'process'])) return { intent: 'operations', confidence: 0.4 };
+      return { intent: 'general', confidence: 0.2 };
+    }
+
+    return { intent: bestIntent, confidence: Number(bestScore.toFixed(3)) };
+  }
+
+  function detectCrmName(text) {
+    const normalized = normalize(text);
+    for (const [key, label] of Object.entries(CRM_NAMES)) {
+      if (normalized.includes(key)) return label;
+    }
+    return '';
+  }
+
+  function detectService(text) {
+    const normalized = normalize(text);
+    if (hasAny(normalized, ['crm', 'hubspot', 'salesforce', 'zoho', 'pipeline', 'automation'])) return 'crm_systems';
+    if (hasAny(normalized, ['lead generation', 'lead gen', 'outreach', 'cold email', 'prospecting', 'booked calls'])) return 'business_development';
+    if (hasAny(normalized, ['account management', 'customer success', 'retention', 'handover', 'renewal'])) return 'account_management';
+    if (hasAny(normalized, ['operations', 'workflow', 'sop', 'process', 'reporting'])) return 'operations';
+    if (hasAny(normalized, ['virtual assistant', 'admin support', 'calendar', 'inbox', 'assistant'])) return 'virtual_assistance';
+    return '';
+  }
+
+  function detectIssueType(text) {
+    const normalized = normalize(text);
+    const issueMap = [
+      ['setup', ['setup', 'from scratch', 'configure']],
+      ['messy data', ['messy', 'dirty data', 'duplicate', 'dedupe', 'cleanup']],
+      ['automation', ['automation', 'workflow', 'sequence', 'trigger']],
+      ['reporting', ['reporting', 'dashboard', 'visibility', 'track']],
+      ['migration', ['migrate', 'migration', 'import', 'move from excel', 'transfer']],
+      ['team usage', ['team usage', 'team adoption', 'nobody updates', 'not using it']],
+      ['reply rate', ['reply rate', 'no replies', 'poor replies']],
+      ['booked meetings', ['booked calls', 'booked meetings', 'appointments']],
+      ['handover', ['handover', 'handoff']],
+      ['sops', ['sop', 'standard operating procedure']],
+      ['technical lockout', ['locked out', 'login issue', 'cannot access', 'cant access']],
+      ['broken workflow', ['system down', 'broken', 'not working', 'stopped working']]
+    ];
+    for (const [label, patterns] of issueMap) {
+      if (hasAny(normalized, patterns)) return label;
+    }
+    return '';
+  }
+
+  function detectFaqTopic(text) {
+    for (const faq of FAQ_LIBRARY) {
+      if (faq.tests.some((test) => test.test(text))) return faq.key;
+    }
+    return '';
+  }
+
+  function applyEntities(message) {
+    const crmName = detectCrmName(message);
+    const service = detectService(message);
+    const issueType = detectIssueType(message);
+    const faqTopic = detectFaqTopic(message);
+    const email = extractEmail(message);
+    const name = extractName(message);
+    const company = extractCompany(message);
+    const volume = extractVolume(message);
+
+    if (crmName) memory.lead.crmName = crmName;
+    if (service) memory.lead.service = service;
+    if (issueType) memory.lead.issueType = issueType;
+    if (faqTopic) memory.lead.faqTopic = faqTopic;
+    if (email) memory.lead.email = email;
+    if (name) memory.lead.name = name;
+    if (company) memory.lead.company = company;
+    if (volume) memory.lead.volume = volume;
+    if (hasAny(message, ['urgent', 'asap', 'immediately', 'right now', 'today'])) memory.lead.urgency = 'high';
+  }
+
+  function extractName(text) {
+    const match = String(text || '').match(/(?:my name is|i am|i'm|this is)\s+([A-Za-z][A-Za-z\s'.-]{1,40})/i);
+    return match ? cleanCapturedValue(match[1]) : '';
+  }
+
+  function extractEmail(text) {
+    const match = String(text || '').match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+    return match ? match[0] : '';
+  }
+
+  function extractCompany(text) {
+    const match = String(text || '').match(/(?:company is|we are|our company is|business is)\s+([A-Za-z0-9][A-Za-z0-9\s&.,'-]{1,60})/i);
+    return match ? cleanCapturedValue(match[1]) : '';
+  }
+
+  function extractVolume(text) {
+    const match = normalize(text).match(/(\d[\d,]*)\s*(leads|contacts|accounts|companies|reps|users)/i);
+    return match ? `${match[1]} ${match[2]}` : '';
+  }
+
   function generateReply(message) {
-    const normalized = normalize(message);
-    updateLeadMemory(message, normalized);
-    const intent = detectIntent(normalized);
-    memory.lastIntent = intent;
+    applyEntities(message);
+    const faq = FAQ_LIBRARY.find((item) => item.key === memory.lead.faqTopic);
+    if (faq) return faq.answer;
+
+    const { intent } = classifyIntent(message);
     memory.history.push({ role: 'user', text: message, intent });
     memory.history = memory.history.slice(-12);
 
-    const reply = buildReply(intent, message, normalized);
+    const reply = buildReply(intent, message);
     memory.history.push({ role: 'assistant', text: reply, intent });
     memory.history = memory.history.slice(-12);
     persistMemory();
     return reply;
   }
 
-  function normalize(text) {
-    return String(text).toLowerCase().replace(/[^a-z0-9@.\s&+-]/g, ' ').replace(/\s+/g, ' ').trim();
-  }
+  function buildReply(intent, originalMessage) {
+    const crmName = memory.lead.crmName;
+    const issueType = memory.lead.issueType;
+    const volume = memory.lead.volume ? ` I noted **${memory.lead.volume}** so far.` : '';
+    const nameLine = memory.lead.name ? `Thanks, ${memory.lead.name}. ` : '';
+    const normalized = normalize(originalMessage);
 
-  function detectIntent(text) {
-    if (/(hello|hi|hey|good morning|good afternoon)\b/.test(text)) return 'greeting';
-    if (/(price|pricing|cost|budget|fee|fees|package|packages)\b/.test(text)) return 'pricing';
-    if (/(book|appointment|schedule|call|meeting|consultation)\b/.test(text)) return 'appointment';
-    if (/(crm|pipeline|hubspot|zoho|salesforce|data cleanup|workflow|automation)\b/.test(text)) return 'crm';
-    if (/(lead|leads|outreach|prospect|prospecting|cold email|cold calling|booked calls|appointments booked)\b/.test(text)) return 'lead_generation';
-    if (/(follow up|follow-up|client handling|retention|account management|accounts|customer success)\b/.test(text)) return 'account_management';
-    if (/(virtual assistant|va |admin|administrative|calendar|inbox|research support|scheduling)\b/.test(text)) return 'virtual_assistance';
-    if (/(operations|workflow|process|reporting|coordination|systems)\b/.test(text)) return 'operations';
-    if (/(contact|email|whatsapp|phone|reach you)\b/.test(text)) return 'contact';
-    if (/(name is|i am |i'm |email is|my email|company is|we are )\b/.test(text)) return 'lead_capture';
-    return 'general';
-  }
-
-  function buildReply(intent, originalMessage, normalized) {
-    const lead = memory.lead;
-    const nameLine = lead.name ? `Thanks, ${lead.name}. ` : '';
-
-    const replies = {
-      greeting: `${nameLine}Welcome. I can help visitors understand CresscoX services and guide them toward the right next step. Tell me whether you need help with **lead generation**, **CRM systems**, **account management**, **virtual assistance**, or **operations**.`,
-
-      pricing: `${nameLine}Pricing depends on the scope, workload, and support level needed. The fastest way to get a serious estimate is to share **your service need**, **current problem**, and **team size or workload**. If you want, tell me those 3 things now and I’ll help structure the request before booking an appointment.`,
-
-      appointment: `${nameLine}You can use the **Appointment** page on this website to request a call. Before booking, it helps to prepare 3 things:\n\n**1.** Your main bottleneck\n**2.** The service you need\n**3.** The result you want in the next 30 to 90 days\n\nRight now, based on your message, I’d categorize this under **${humanizeIntent(memory.lastIntent === 'appointment' ? inferServiceFromPainPoints() : memory.lastIntent)}**.`,
-
-      crm: `${nameLine}It sounds like you need help with **CRM Systems**. CresscoX can support with:\n\n- CRM setup\n- pipeline structuring\n- data cleanup\n- workflow organization\n- reporting support\n- system maintenance\n\nA useful next step is to tell me: **Which CRM are you using now, and what is the biggest issue—messy data, poor follow-up, or no clear process?**`,
-
-      lead_generation: `${nameLine}It sounds like a **lead generation / outreach** issue. CresscoX can help by improving:\n\n- lead targeting\n- outreach structure\n- message consistency\n- follow-up flow\n- booked-call conversion\n\nTell me this next: **Are you struggling more with finding leads, getting replies, or converting replies into calls?**`,
-
-      account_management: `${nameLine}This looks like an **account management / client handling** problem. CresscoX can help improve:\n\n- follow-up consistency\n- client communication flow\n- retention support\n- account coordination\n- relationship management processes\n\nTell me whether the bigger issue is **late follow-up**, **poor communication**, or **client retention**.`,
-
-      virtual_assistance: `${nameLine}This sounds like a **virtual assistance / admin support** need. CresscoX can help with:\n\n- inbox management\n- calendar scheduling\n- research support\n- document handling\n- task coordination\n- administrative support\n\nTell me which tasks are taking the most time each week, and I’ll help narrow the scope.`,
-
-      operations: `${nameLine}This sounds like an **operations / workflow** issue. The main goal here is usually to reduce confusion, improve accountability, and make work easier to track.\n\nA good next step is to tell me:\n- what feels messy now\n- who is involved\n- where delays usually happen`,
-
-      contact: `${nameLine}The best path is through the **Contact** page or the **Appointment** page on this site. If you want, send me your **name**, **email**, **company**, and the **service you need**, and I’ll help you organize the inquiry before you submit it.`,
-
-      lead_capture: buildLeadCaptureReply(),
-
-      general: `${nameLine}I understand the message. Based on what you wrote, the most relevant areas may be **${suggestTopics(normalized)}**. Tell me which one fits best, and I’ll guide you step by step.`
-    };
-
-    if (/(thank you|thanks)\b/.test(normalized)) {
-      return `${nameLine}You’re welcome. If you want to continue, tell me your **main business bottleneck** and I’ll point you to the right service.`;
+    if ((extractEmail(originalMessage) || extractName(originalMessage) || extractCompany(originalMessage)) &&
+      !['greeting', 'smalltalk', 'thanks'].includes(intent)) {
+      return buildLeadCaptureReply();
     }
 
-    if (/(human|person|real person)\b/.test(normalized)) {
-      return `${nameLine}For direct human follow-up, please use the **Contact** or **Appointment** page. Before that, I can help summarize your need into a clean message so your inquiry is more useful.`;
+    switch (intent) {
+      case 'greeting':
+        return `${nameLine}Hello — how can CresscoX help today?`;
+      case 'smalltalk':
+        if (crmName) return `${nameLine}I’m doing well, thanks. Is this about **${crmName}**, or something else?`;
+        return `${nameLine}I’m doing well, thanks. What do you need help with today?`;
+      case 'thanks':
+        return `${nameLine}You’re welcome. What would you like help with next?`;
+      case 'demo_request':
+        if (crmName) {
+          return `${nameLine}Absolutely. We can focus the demo around **${crmName}**. Would you like to see a specific **setup**, **automation flow**, or **reporting workflow**?`;
+        }
+        return `${nameLine}Absolutely. Do you want a demo of a **CRM setup**, **lead generation workflow**, or **operations flow**?`;
+      case 'audit_request':
+        if (crmName) {
+          return `${nameLine}We can definitely audit your **${crmName}** setup. Are we auditing the **CRM database and pipeline structure**, or the **way your team uses it day to day**?`;
+        }
+        return `${nameLine}We can definitely audit the setup. Are we auditing an **existing CRM database**, or your **current outbound sales process**?`;
+      case 'pricing_request':
+        return `${nameLine}Custom projects vary by scope.${volume} To give an accurate range, how many **leads, accounts, users, or workflows** are involved, and is this mainly for **CRM**, **lead generation**, **operations**, or **VA support**?`;
+      case 'emergency_request':
+        return `${nameLine}Understood — this sounds urgent${crmName ? ` in **${crmName}**` : ''}. Is this a **technical lockout**, or is a **critical workflow** like lead automation or follow-up broken right now?`;
+      case 'hire_va_request':
+        return `${nameLine}Yes — we can scope VA support. Do you need a **full-time dedicated assistant** or **part-time support** for tasks like **inbox, calendar, research, CRM updates, or follow-up coordination**?`;
+      case 'booking_request':
+        if (crmName) return `${nameLine}Yes — we can set up a strategy call for **${crmName}**. Is the main bottleneck **setup**, **automation**, **reporting**, or **cleanup**?`;
+        return `${nameLine}Yes — we can set up a strategy call. What is the main bottleneck: **CRM**, **lead generation**, **operations**, **account management**, or **VA support**?`;
+      case 'crm_help':
+        if (crmName) {
+          return `${nameLine}Got it — you need help with **${crmName}**${issueType ? ` and the likely issue is **${issueType}**` : ''}. What is the main problem right now: **setup**, **messy data**, **automation**, **reporting**, **migration**, or **team usage**?`;
+        }
+        return `${nameLine}This sounds like a **CRM systems** issue. Which CRM are you using now — **HubSpot**, **Salesforce**, **Zoho**, or something else?`;
+      case 'lead_generation':
+        return `${nameLine}This sounds like a **lead generation** issue. Are you struggling more with **finding qualified leads**, **getting replies**, or **turning replies into booked meetings**?`;
+      case 'account_management':
+        return `${nameLine}This sounds like an **account management** issue. Is the main gap in **handover**, **follow-up consistency**, **retention**, or **client communication quality**?`;
+      case 'operations':
+        if (issueType === 'sops') {
+          return `${nameLine}Yes — CresscoX can support **SOP creation** and wider operations structure. Do you need SOPs mainly for **sales**, **CRM/admin work**, **client handovers**, or **internal operations**?`;
+        }
+        return `${nameLine}This sounds like an **operations** issue. Which part feels most disorganized right now — **workflow**, **ownership**, **approvals**, **reporting**, or **handover**?`;
+      case 'contact':
+        return `${nameLine}You can reach the team through the **contact** or **appointment** section on the site. If you want, send your **name**, **email**, **company**, and **main need**, and I’ll help shape the inquiry first.`;
+      default:
+        if (crmName && hasAny(normalized, ['problem', 'help', 'issue', 'struggling'])) {
+          return `${nameLine}Got it — you need help with **${crmName}**. What is the main issue right now: **setup**, **messy data**, **automation**, **reporting**, **migration**, or **team usage**?`;
+        }
+        if (crmName) return `${nameLine}I can help with **${crmName}**. Tell me the main issue and I’ll narrow it fast.`;
+        return `${nameLine}I can help with **CRM**, **lead generation**, **operations**, **account management**, and **VA support**. What do you need help with?`;
     }
-
-    return replies[intent] || replies.general;
-  }
-
-  function updateLeadMemory(originalMessage, normalized) {
-    const emailMatch = originalMessage.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    if (emailMatch) memory.lead.email = emailMatch[0];
-
-    const nameMatch = originalMessage.match(/(?:my name is|i am|i'm)\s+([A-Za-z][A-Za-z\s'-]{1,40})/i);
-    if (nameMatch) memory.lead.name = cleanCapturedValue(nameMatch[1]);
-
-    const companyMatch = originalMessage.match(/(?:company is|we are|our company is)\s+([A-Za-z0-9][A-Za-z0-9\s&.,'-]{1,60})/i);
-    if (companyMatch) memory.lead.company = cleanCapturedValue(companyMatch[1]);
-
-    const service = inferServiceFromText(normalized);
-    if (service) memory.lead.service = service;
-
-    const painMap = [
-      ['low lead conversion', /(not enough.*booked calls|low conversion|poor conversion|few booked calls)/],
-      ['messy crm', /(messy crm|dirty data|crm is messy|bad crm|poor crm)/],
-      ['weak follow-up', /(follow up is inconsistent|bad follow up|late follow up|poor follow up)/],
-      ['operations overload', /(operations|admin overload|too many tasks|workflow is messy)/],
-    ];
-
-    painMap.forEach(([label, pattern]) => {
-      if (pattern.test(normalized) && !memory.lead.painPoints.includes(label)) {
-        memory.lead.painPoints.push(label);
-      }
-    });
-  }
-
-  function inferServiceFromText(text) {
-    if (/(crm|pipeline|hubspot|zoho|salesforce)/.test(text)) return 'CRM Systems';
-    if (/(lead|outreach|prospect|booked calls)/.test(text)) return 'Business Development';
-    if (/(client handling|account management|retention|follow up)/.test(text)) return 'Account Management';
-    if (/(virtual assistant|admin|calendar|inbox|scheduling)/.test(text)) return 'Virtual Assistance';
-    if (/(operations|workflow|process|reporting)/.test(text)) return 'Operations Support';
-    return '';
-  }
-
-  function inferServiceFromPainPoints() {
-    return memory.lead.service || 'general support';
   }
 
   function buildLeadCaptureReply() {
@@ -1479,38 +1799,10 @@
     if (memory.lead.name) parts.push(`**Name:** ${memory.lead.name}`);
     if (memory.lead.email) parts.push(`**Email:** ${memory.lead.email}`);
     if (memory.lead.company) parts.push(`**Company:** ${memory.lead.company}`);
-    if (memory.lead.service) parts.push(`**Likely service:** ${memory.lead.service}`);
-
-    if (parts.length) {
-      return `I’ve picked up these details from your message:\n\n${parts.join('\n')}\n\nYou can now use the **Appointment** or **Contact** page and submit these details with your business need.`;
-    }
-
-    return `You can send me your **name**, **email**, **company**, and **service needed**, and I’ll organize them into a cleaner inquiry summary.`;
-  }
-
-  function suggestTopics(text) {
-    const suggestions = [];
-    if (/(lead|outreach|prospect)/.test(text)) suggestions.push('lead generation');
-    if (/(crm|pipeline|workflow)/.test(text)) suggestions.push('CRM systems');
-    if (/(client|follow up|retention)/.test(text)) suggestions.push('account management');
-    if (/(admin|calendar|inbox|va)/.test(text)) suggestions.push('virtual assistance');
-    if (/(operations|process|reporting)/.test(text)) suggestions.push('operations');
-    if (!suggestions.length) suggestions.push('lead generation, CRM systems, account management, or operations');
-    return suggestions.join(', ');
-  }
-
-  function humanizeIntent(intent) {
-    const map = {
-      crm: 'CRM Systems',
-      lead_generation: 'Business Development',
-      account_management: 'Account Management',
-      virtual_assistance: 'Virtual Assistance',
-      operations: 'Operations Support',
-      pricing: 'Pricing / Scope Review',
-      general: 'General Business Support',
-      'general support': 'General Support',
-    };
-    return map[intent] || intent || 'General Support';
+    if (memory.lead.crmName) parts.push(`**CRM:** ${memory.lead.crmName}`);
+    if (memory.lead.issueType) parts.push(`**Issue:** ${memory.lead.issueType}`);
+    if (memory.lead.volume) parts.push(`**Scope:** ${memory.lead.volume}`);
+    return `Here’s what I’ve captured so far:\n\n${parts.join('\n')}\n\nAdd the **main goal** or **service need**, and I’ll help structure the request before booking.`;
   }
 
   function cleanCapturedValue(value) {
@@ -1534,7 +1826,6 @@
       .replace(/'/g, '&#039;');
   }
 })();
-
   </script>
 </body>
 </html>
